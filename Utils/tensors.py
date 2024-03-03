@@ -73,3 +73,15 @@ class Tensor:
             raise ValueError(f"Unsupported shape {other.shape}")
         else:
             return Tensor([[sum(a * b for a,b in zip(row, col)) for col in zip(*other.data)] for row in self.data]).data
+        
+    def mean(self, axis = None):
+        if axis is None:
+            return sum([sum(row) for row in self.data]) / self.shape[0] * self.shape[1]
+        elif isinstance(axis, int):
+            if axis >= len(self.shape):
+                raise ValueError(f"Axis {axis} is out of range")
+            # Mean along the columns
+            elif axis == 0:
+                return [sum(col) / self.shape[0] for col in zip(*self.data)]
+            elif axis == 1:
+                return [sum(row) / self.shape[1] for row in self.data]
