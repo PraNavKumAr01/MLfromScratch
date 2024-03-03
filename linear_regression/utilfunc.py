@@ -3,6 +3,7 @@ sys.path.append('../')
 
 from utils.tensors import Tensor
 
+# Implementing the Ordinary Least Squared algorithm
 def ols(X: Tensor, y: Tensor):
     if len(X) != len(y):
         raise ValueError(f"Shape of features {X.shape} does not match the shape of targets {y.shape}")
