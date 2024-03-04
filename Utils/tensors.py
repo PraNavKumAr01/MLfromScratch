@@ -1,8 +1,17 @@
+import sys
+sys.path.append('../')
+
 class Tensor:
     # Constructor
     def __init__(self, data):
         self.data = data # Elements of the tensor
         self.shape = self.get_shape() # Shape of the tensor
+
+    def __len__(self):
+        return self.shape[0]
+    
+    def n_dim(self):
+        return len(self.shape)
 
     # Function to calculate the shape of the tensor
     def get_shape(self):
@@ -58,10 +67,16 @@ class Tensor:
     
     # Dot product
     def dot(self, other):
-        if isinstance(other, list):
-            if len(other) != self.shape[1]:
-                raise ValueError(f"Length of the list {len(other)} does not match the number of columns in the tensor.")
-            return Tensor([[sum(row[i] * other[i] for i in range(len(other))) for row in self.data]]).data
+        if isinstance(other, Tensor):
+            if other.n_dim() != self.n_dim():
+                raise ValueError(f"Dimension mismatch")
+            elif other.n_dim() == 1:
+                if len(self.data) != len(other.data):
+                    raise ValueError(f"Length of tensors must be equal")
+                else:
+                    return sum(a * b for a, b in zip(self.data, other.data))
+            elif other.n_dim() == 2:
+                return Tensor([[sum(a * b for a,b in zip(row, col)) for col in zip(*other.data)] for row in self.data]).data
         else:
             raise TypeError("Unsupported operand types.")
     
@@ -75,13 +90,23 @@ class Tensor:
             return Tensor([[sum(a * b for a,b in zip(row, col)) for col in zip(*other.data)] for row in self.data]).data
         
     def mean(self, axis = None):
-        if axis is None:
-            return sum([sum(row) for row in self.data]) / self.shape[0] * self.shape[1]
-        elif isinstance(axis, int):
-            if axis >= len(self.shape):
-                raise ValueError(f"Axis {axis} is out of range")
-            # Mean along the columns
-            elif axis == 0:
-                return [sum(col) / self.shape[0] for col in zip(*self.data)]
-            elif axis == 1:
-                return [sum(row) / self.shape[1] for row in self.data]
+        if self.n_dim() == 1:
+            return sum(self.data) / len(self.data)
+        else:
+            if axis is None:
+                total_sum = sum(sum(row) for row in self.data)
+                return total_sum / (self.shape[0] * self.shape[1])
+            elif isinstance(axis, int):
+                if axis >= len(self.shape):
+                    raise ValueError(f"Axis {axis} is out of range")
+                # Mean along the columns
+                elif axis == 0:
+                    return [sum(col) / self.shape[0] for col in zip(*self.data)]
+                elif axis == 1:
+                    return [sum(row) / self.shape[1] for row in self.data]
+            
+    def transpose(self):
+        if self.n_dim() == 1:
+            return self.data
+        else:
+            return Tensor([list(row) for row in zip(*self.data)]).data
