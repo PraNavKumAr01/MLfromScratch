@@ -7,11 +7,41 @@ class Tensor:
         self.data = data # Elements of the tensor
         self.shape = self.get_shape() # Shape of the tensor
 
+    # Function to return len(tensor)
     def __len__(self):
         return self.shape[0]
     
+    # Calculating the dimension of the tensor
     def n_dim(self):
         return len(self.shape)
+    
+    # Flattening a multi dimensional tensor into a 1D tensor
+    def flatten(self):
+        return [item for row in self.data for item in row]
+    
+    # Calculating the max of a Tensor according to the axis
+    def max(self, axis = None):
+        # Max of the entire tensor
+        if axis is None:
+            return max(self.flatten())
+        # Max of every column
+        if axis == 0:
+            return Tensor([max(col) for col in zip(*self.data)]).data
+        # Max of every row
+        if axis == 1:
+            return Tensor([max(row) for row in self.data]).data
+
+    # Calculating the min of a Tensor according to the axis 
+    def min(self, axis = None):
+        # Min of the entire tensor
+        if axis is None:
+            return min(self.flatten())
+        # Min of every column
+        if axis == 0:
+            return Tensor([min(col) for col in zip(*self.data)]).data
+        # Min of every row
+        if axis == 1:
+            return Tensor([min(row) for row in self.data]).data
 
     # Function to calculate the shape of the tensor
     def get_shape(self):
@@ -88,7 +118,8 @@ class Tensor:
             raise ValueError(f"Unsupported shape {other.shape}")
         else:
             return Tensor([[sum(a * b for a,b in zip(row, col)) for col in zip(*other.data)] for row in self.data]).data
-        
+    
+    # Calculating the mean of the Tensor
     def mean(self, axis = None):
         if self.n_dim() == 1:
             return sum(self.data) / len(self.data)
@@ -104,7 +135,8 @@ class Tensor:
                     return [sum(col) / self.shape[0] for col in zip(*self.data)]
                 elif axis == 1:
                     return [sum(row) / self.shape[1] for row in self.data]
-            
+                
+    # Transposing a multi-dimensional Tensor
     def transpose(self):
         if self.n_dim() == 1:
             return self.data
